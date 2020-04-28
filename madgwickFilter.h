@@ -47,7 +47,7 @@ static inline void quat_add(struct quaternion * Sum, struct quaternion L, struct
 }
 
 // the conjugate of a quaternion is it's imaginary component sign changed
-static inline struct quaternion conjugate(struct quaternion q){
+static inline struct quaternion quat_conjugate(struct quaternion q){
     q.q2 = -q.q2;
     q.q3 = -q.q3;
     q.q4 = -q.q4;
@@ -57,9 +57,18 @@ static inline struct quaternion conjugate(struct quaternion q){
 // norm of a quaternion is the same as a complex number
 // sqrt( q1^2 + q2^2 + q3^2 + q4^2)
 // the norm is also the sqrt(q * conjugate(q)), but thats a lot of operations in the quaternion multiplication
-static inline float quaternion_Norm (struct quaternion q)
+static inline float quat_Norm (struct quaternion q)
 {
     return sqrt(q.q1*q.q1 + q.q2*q.q2 + q.q3*q.q3 +q.q4*q.q4);
+}
+
+//Normalizes pointer q by calling quat_Norm(q)
+static inline void quat_Normalization(struct quaternion * q){
+    float norm = quat_Norm(*q);
+    q -> q1 /= norm;
+    q -> q2 /= norm;
+    q -> q3 /= norm;
+    q -> q4 /= norm;
 }
 
 static inline void printQuaternion (struct quaternion q){
