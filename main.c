@@ -15,7 +15,7 @@ int main(int argc, const char * argv[]) {
     q_est.q3 = 7;
     q_est.q4 = 8;
     
-    imu_filter(0, 0, 1, 0, 0, 0);
+    imu_filter(0, 0, 1, 2, -2, 2);
     
     
     
