@@ -13,6 +13,7 @@ struct quaternion q_est;
 
 struct quaternion quat_mult (struct quaternion L, struct quaternion R){
     
+    
     struct quaternion product;
     product.q1 = (L.q1 * R.q1) - (L.q2 * R.q2) - (L.q3 * R.q3) - (L.q4 * R.q4);
     product.q2 = (L.q1 * R.q2) + (L.q2 * R.q1) + (L.q3 * R.q4) - (L.q4 * R.q3);
