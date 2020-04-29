@@ -117,12 +117,27 @@ void imu_filter(float ax, float ay, float az, float gx, float gy, float gz){
     quat_scalar(&gradient, (beta));             // multiply normalized gradient by beta
     quat_sub(&q_est_dot, q_w, gradient);        // subtract above from q_w, the integrated gyro quaternion
     quat_scalar(&q_est_dot, deltaT);
-    quat_add(&q_est, q_est_dot, q_est_dot);      // Integrate orientation rate to find position
+    quat_add(&q_est, q_est_prev, q_est_dot);      // Integrate orientation rate to find position
     printQuaternion(q_est);
     quat_Normalization(&q_est);                 // normalize the orientation of the estimate
     printQuaternion(q_est);                     //(shown in diagram, plus always use unit quaternions for orientation)
+   
+}
+
+/*
+ returns as pointers, roll pitch and yaw from the quaternion generated in imu_filter
+ Assume right hand system
+ Roll is about the x axis, represented as phi
+ Pitch is about the y axis, represented as theta
+ Yaw is about the z axis, represented as psi (trident looking greek symbol)
+ */
+void eulerAngles(struct quaternion q, float* roll, float* pitch, float* yaw){
+    
+    *yaw = atan2f((2*q.q2*q.q3 - 2*q.q1*q.q4), (2*q.q1*q.q1 + 2*q.q2*q.q2 -1));  // equation (7)
+    *pitch = -asinf(2*q.q2*q.q4 + 2*q.q1*q.q3);                                  // equatino (8)
+    *roll  = atan2f((2*q.q3*q.q4 - 2*q.q1*q.q2), (2*q.q1*q.q1 + 2*q.q4*q.q4 -1));
     
    
-    
 }
+
 
