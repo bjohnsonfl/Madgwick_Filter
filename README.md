@@ -14,4 +14,26 @@ A Quaternion is a 4 dimensional number, an extension of the complex plane. It ha
 ## Whats next
 
 This filter will be used in my IMU project, also on github, and run on an embedded MCU. I also intend to implement the MARG filter.  
+
+## Build Instructions 
+This Project includes a basic CMakeList.txt. Run the following commands to build, make, and run the program.
+
+```bash
+# Clone the repo and cd to the root of the directory
+
+# Create a build directory 
+ mkdir build
+
+ # Run CMake
+ cmake -S . -B build
+
+ # Build the program with the generated make files
+ cmake --build build/
+
+ # Run the program
+ ./build/Madgwick_Filter
+ ```
+
+ ### CMake
+ Use this [Modern CMake](https://cliutils.gitlab.io/modern-cmake/) guide as an introduction to CMake.
  
