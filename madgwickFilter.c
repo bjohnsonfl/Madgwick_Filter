@@ -9,8 +9,6 @@
 
 struct quaternion q_est = { 1, 0, 0, 0};       // initialize with as unit vector with real component  = 1
 
-
-
 struct quaternion quat_mult (struct quaternion L, struct quaternion R){
     
     
@@ -24,14 +22,15 @@ struct quaternion quat_mult (struct quaternion L, struct quaternion R){
 }
 
 
-
-//The resulting quaternion is a global variable (q_est), so it is not returned or passed by reference/pointer
+// The resulting quaternion is a global variable (q_est), so it is not returned or passed by reference/pointer
+// Gyroscope Angular Velocity components are in Radians per Second
+// Accelerometer componets will be normalized
 void imu_filter(float ax, float ay, float az, float gx, float gy, float gz){
     
     //Variables and constants
     struct quaternion q_est_prev = q_est;
     struct quaternion q_est_dot = {0};            // used as a place holder in equations 42 and 43
-    const struct quaternion q_g_ref = {0, 0, 0, 1};// equation (23), reference to field of gravity for gradient descent optimization
+    //const struct quaternion q_g_ref = {0, 0, 0, 1};// equation (23), reference to field of gravity for gradient descent optimization (not needed because I used eq 25 instead of eq 21
     struct quaternion q_a = {0, ax, ay, az};    // equation (24) raw acceleration values, needs to be normalized
     
     float F_g [3] = {0};                        // equation(15/21/25) objective function for gravity
@@ -46,12 +45,17 @@ void imu_filter(float ax, float ay, float az, float gx, float gy, float gz){
     q_w.q3 = gy;
     q_w.q4 = gz;
     
-    quat_scalar(&q_w, 0.5);                  // the 0.5 comes from the equation P = Po + 1/2(deltaV) * t I believe
-    
+    quat_scalar(&q_w, 0.5);                  // equation (12) dq/dt = (1/2)q*w
     q_w = quat_mult(q_est_prev, q_w);        // equation (12)
-    quat_scalar(&q_w, deltaT);               // equation (13) integrates the angles velocity to position
-    quat_add(&q_w, q_w, q_est_prev);         // addition part of equation (13)
-    
+
+    /* NOTE
+    * Page 10 states equation (40) substitutes equation (13) into it. This seems false, as he actually
+    * substitutes equation (12), q_se_dot_w, not equation (13), q_se_w.
+    * 
+    * // quat_scalar(&q_w, deltaT);               // equation (13) integrates the angles velocity to position
+    * // quat_add(&q_w, q_w, q_est_prev);         // addition part of equation (13)
+    */
+
     /* Compute the gradient by multiplying the jacobian matrix by the objective function. This is equation 20.
      The Jacobian matrix, J, is a 3x4 matrix of partial derivatives for each quaternion component in the x y z axes
      The objective function, F, is a 3x1 matrix for x y and z.
@@ -105,9 +109,9 @@ void imu_filter(float ax, float ay, float az, float gx, float gy, float gz){
      Combining the simplification of the gradient descent equation with the simplification of the fusion equation gets you eq.
      41 which can be subdivided into eqs 42-44.
     */
-    quat_scalar(&gradient, (beta));             // multiply normalized gradient by beta
+    quat_scalar(&gradient, BETA);             // multiply normalized gradient by beta
     quat_sub(&q_est_dot, q_w, gradient);        // subtract above from q_w, the integrated gyro quaternion
-    quat_scalar(&q_est_dot, deltaT);
+    quat_scalar(&q_est_dot, DELTA_T);
     quat_add(&q_est, q_est_prev, q_est_dot);     // Integrate orientation rate to find position
     quat_Normalization(&q_est);                 // normalize the orientation of the estimate
                                                 //(shown in diagram, plus always use unit quaternions for orientation)

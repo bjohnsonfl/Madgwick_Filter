@@ -5,18 +5,28 @@
 //  Created by Blake Johnson on 4/28/20.
 //
 
-#ifndef madgwickFilter_h
-#define madgwickFilter_h
+#ifndef MADGWICK_FILTER_H
+#define MADGWICK_FILTER_H
 
-#define deltaT 0.01f // 100Hz sampling frequency
-#define PI 3.14159265358979f
-#define gyroMeanError PI * (5.0f / 180.0f) // gyroscope measurement error in rad/s (shown as 5 deg/s) *from paper*
-#define beta sqrt(3.0f/4.0f) * gyroMeanError    //*from paper*
+// Include a hardware specific header file to redefine these predetermined values
+#ifndef DELTA_T
+    #define DELTA_T 0.01f // 100Hz sampling frequency
+#endif
+
+#ifndef PI  
+    #define PI 3.14159265358979f
+#endif
+
+#ifndef GYRO_MEAN_ERROR
+    #define GYRO_MEAN_ERROR PI * (5.0f / 180.0f) // 5 deg/s gyroscope measurement error (in rad/s)  *from paper*
+#endif
+
+#ifndef BETA
+    #define BETA sqrt(3.0f/4.0f) * GYRO_MEAN_ERROR    //*from paper*
+#endif
 
 #include <math.h>
 #include <stdio.h>
-
-
 
 struct quaternion{
     float q1;
@@ -25,13 +35,13 @@ struct quaternion{
     float q4;
 };
 
-//global variables
+// global variables
 extern struct quaternion q_est;
 
-//Multiply two quaternions and return a copy of the result, prod = L * R
+// Multiply two quaternions and return a copy of the result, prod = L * R
 struct quaternion quat_mult (struct quaternion q_L, struct quaternion q_R);
 
-//Multiply a reference of a quaternion by a scalar, q = s*q
+// Multiply a reference of a quaternion by a scalar, q = s*q
 static inline void quat_scalar(struct quaternion * q, float scalar){
     q -> q1 *= scalar;
     q -> q2 *= scalar;
@@ -39,7 +49,7 @@ static inline void quat_scalar(struct quaternion * q, float scalar){
     q -> q4 *= scalar;
 }
 
-//Adds two quaternions together and the sum is the pointer to another quaternion, Sum = L + R
+// Adds two quaternions together and the sum is the pointer to another quaternion, Sum = L + R
 static inline void quat_add(struct quaternion * Sum, struct quaternion L, struct quaternion R){
     Sum -> q1 = L.q1 + R.q1;
     Sum -> q2 = L.q2 + R.q2;
@@ -47,7 +57,7 @@ static inline void quat_add(struct quaternion * Sum, struct quaternion L, struct
     Sum -> q4 = L.q4 + R.q4;
 }
 
-//Subtracts two quaternions together and the sum is the pointer to another quaternion, sum = L - R
+// Subtracts two quaternions together and the sum is the pointer to another quaternion, sum = L - R
 static inline void quat_sub(struct quaternion * Sum, struct quaternion L, struct quaternion R){
     Sum -> q1 = L.q1 - R.q1;
     Sum -> q2 = L.q2 - R.q2;
@@ -72,7 +82,7 @@ static inline float quat_Norm (struct quaternion q)
     return sqrt(q.q1*q.q1 + q.q2*q.q2 + q.q3*q.q3 +q.q4*q.q4);
 }
 
-//Normalizes pointer q by calling quat_Norm(q),
+// Normalizes pointer q by calling quat_Norm(q),
 static inline void quat_Normalization(struct quaternion * q){
     float norm = quat_Norm(*q);
     q -> q1 /= norm;
@@ -86,7 +96,7 @@ static inline void printQuaternion (struct quaternion q){
 }
 
 
-//IMU consists of a Gyroscope plus Accelerometer sensor fusion
+// IMU consists of a Gyroscope plus Accelerometer sensor fusion
 void imu_filter(float ax, float ay, float az, float gx, float gy, float gz);
 
 // void marg_filter(void); for future
@@ -96,4 +106,4 @@ void eulerAngles(struct quaternion q, float* roll, float* pitch, float* yaw);
 
 
 
-#endif /* madgwickFilter_h */
+#endif /* MADGWICK_FILTER_H */
