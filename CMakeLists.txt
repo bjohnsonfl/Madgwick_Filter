@@ -10,4 +10,5 @@ target_include_directories(madgwick PUBLIC ${PROJECT_SOURCE_DIR}/)
 add_executable( ${PROJECT_NAME} main.c)
 
 target_link_libraries( ${PROJECT_NAME} 
-        madgwick)
+        madgwick
+        m)
